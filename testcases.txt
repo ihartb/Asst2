@@ -1,0 +1,99 @@
+bam270@cd:~/Systems/Asst2$ tree ./Testing
+./Testing
+├── Asst2Copy.h
+├── Asst2.h
+├── DirectoryWithOneFile
+│   └── test1.txt
+├── EmptyFile.txt
+└── Test2
+    ├── test2.txt
+    └── test3.txt
+
+test1.txt
+hi there hi there
+
+test2.txt
+hi out there hi
+
+test3.txt
+"hi! o45ut _there, hi"
+
+EmptyFile.txt - is empty.
+------------------------------------------------------------------------------------------------------------
+First I test incorrect argument values:
+
+No filepath passed
+./detector 
+Incorrect number of arguments
+
+./detector ./Testing/ arg2
+Incorrect number of arguments
+
+A file, not a directory, is passed
+./detector "./Testing/Asst2.h"
+Filepath ./Testing/Asst2.h is not a directory.
+Not enough files to compare.
+
+A directory with only one file
+./detector "./Testing/DirectoryWithOneFile"
+Not enough files to compare.
+
+A nonexistent filepath is passed
+./detector "./NonexistentFile"
+Filepath ./NonexistentFile does not exist.
+Not enough files to compare.
+
+Then I tested cases where I pass correct arguments:
+
+A directory with two files that are exactly the same if you ignore nonalphabetic and non-hyphen characters, check above to see the contents of each file.
+./detector "./Testing/Test2"
+0.000 "./Testing/Test2/test3.txt" and "./Testing/Test2/test2.txt"
+
+Now I pass in the whole testing directory which confirms a few things:
+	1. Lack of quotes around the argument is not an issue
+	2. Ending a filepath in a slash does not lead to errors
+	3. Files within subdirectories are appropriatly parsed and don't lead to error
+	4. Comparing the tree above and the lines outputted, there is the correct number of pairings and no repeat pairs
+	5. The empty file does not give error
+	6. The files are printed based on number of tokens, as all pairs with the empty file is printed first (and Asst2.h are last)
+	7. Pairs (test1.txt, test2.txt) and (test1.txt, test3.txt) produce the same value, as they should (refer back to the last testcase). Additionally, they contain the same text ratios of "hi", "out", and "there" as "b.txt" and "c.txt" shown within the assignment uploaded on sakai, and produce the same JSD value of .047 as the pdf.
+./detector ./Testing/
+0.151 "./Testing/EmptyFile.txt" and "./Testing/Test2/test3.txt"
+0.151 "./Testing/EmptyFile.txt" and "./Testing/Test2/test2.txt"
+0.151 "./Testing/EmptyFile.txt" and "./Testing/DirectoryWithOneFile/test1.txt"
+0.151 "./Testing/EmptyFile.txt" and "./Testing/Asst2Copy.h"
+0.151 "./Testing/EmptyFile.txt" and "./Testing/Asst2.h"
+0.000 "./Testing/Test2/test3.txt" and "./Testing/Test2/test2.txt"
+0.047 "./Testing/Test2/test3.txt" and "./Testing/DirectoryWithOneFile/test1.txt"
+0.273 "./Testing/Test2/test3.txt" and "./Testing/Asst2Copy.h"
+0.273 "./Testing/Test2/test3.txt" and "./Testing/Asst2.h"
+0.047 "./Testing/Test2/test2.txt" and "./Testing/DirectoryWithOneFile/test1.txt"
+0.273 "./Testing/Test2/test2.txt" and "./Testing/Asst2Copy.h"
+0.273 "./Testing/Test2/test2.txt" and "./Testing/Asst2.h"
+0.278 "./Testing/DirectoryWithOneFile/test1.txt" and "./Testing/Asst2Copy.h"
+0.278 "./Testing/DirectoryWithOneFile/test1.txt" and "./Testing/Asst2.h"
+0.000 "./Testing/Asst2Copy.h" and "./Testing/Asst2.h"
+
+
+While coding, I tested my code periodically using modules as mentioned in the assignment. I also used valgrind to ensure there were no memory leaks, to the point that even testing on my entire Systems file directory leads to no memory leaks or seg faults. Check file testcase1 for the STDOUT output from my program for the following testcase (its quite long).
+/Systems/Asst2$ valgrind ./detector "../" > testcase1
+==27924== Memcheck, a memory error detector
+==27924== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==27924== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==27924== Command: ./detector ../
+==27924== 
+==27924== 
+==27924== HEAP SUMMARY:
+==27924==     in use at exit: 0 bytes in 0 blocks
+==27924==   total heap usage: 107,551 allocs, 107,551 frees, 64,103,802 bytes allocated
+==27924== 
+==27924== All heap blocks were freed -- no leaks are possible
+==27924== 
+==27924== For counts of detected and suppressed errors, rerun with: -v
+==27924== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+
+While modular testing each part of my code:
+I used print statements to make sure that traverseDirectories() and tokenizer() were visiting each subdirectory and file. I repeatedly debugged using valgrind to ensure my threads did not lead to leaks. 
+Then I used directories with a single, relatively simple files to make sure tokenizer was properly recording token data.
+Once this was done, I made sure to test the data was saved once the thread exited as well.
+computeJSD was the simplest part as it didn't require specific memory allocation and just mathematical computations, and was quite straighforward to test using the examples from the assignment pdf on sakai. 
